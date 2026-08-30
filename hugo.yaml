@@ -1,0 +1,158 @@
+# Replace this with the public URL of your site before deployment.
+baseURL: https://example.com/
+
+# The theme lives in the sibling directory `/home/q/Blogs/hugo_theme`.
+themesDir: ../
+theme: hugo_theme
+
+# Chinese is served from `/`, while English is served from `/en/`.
+defaultContentLanguage: zh-cn
+defaultContentLanguageInSubdir: false
+hasCJKLanguage: true
+
+enableRobotsTXT: true
+enableGitInfo: false
+timeZone: Asia/Shanghai
+
+pagination:
+  pagerSize: 10
+
+permalinks:
+  posts: /posts/:year/:month/:slug/
+
+taxonomies:
+  tag: tags
+  category: categories
+
+outputs:
+  home:
+    - HTML
+    - RSS
+  section:
+    - HTML
+    - RSS
+  taxonomy:
+    - HTML
+    - RSS
+  term:
+    - HTML
+    - RSS
+
+params:
+  mainSections:
+    - posts
+  avatar: images/avatar.webp
+  favicon: images/avatar.webp
+  since: 2026
+  icp: ""
+  social:
+    - name: GitHub
+      icon: github
+      url: https://github.com/your-name
+    - name: Email
+      icon: email
+      url: mailto:hello@example.com
+
+languages:
+  zh-cn:
+    locale: zh-CN
+    label: 简体中文
+    direction: ltr
+    weight: 1
+    title: 我的博客
+    contentDir: content/zh-cn
+    params:
+      description: 分享技术、思考与生活
+      author: 你的名字
+      dateFormat: 2006年1月2日
+      tagline: 在代码与生活之间
+      homeTitle: 记录创造，也记录生活
+      homeSubtitle: 关于技术实践、个人思考，以及值得被记住的日常。
+      profileRole: 博客作者
+    menus:
+      main:
+        - identifier: home
+          name: 首页
+          pageRef: /
+          weight: 10
+        - identifier: posts
+          name: 文章
+          pageRef: /posts
+          weight: 20
+        - identifier: categories
+          name: 分类
+          pageRef: /categories
+          weight: 30
+        - identifier: tags
+          name: 标签
+          pageRef: /tags
+          weight: 40
+        - identifier: about
+          name: 关于
+          pageRef: /about
+          weight: 50
+
+  en:
+    locale: en-US
+    label: English
+    direction: ltr
+    weight: 2
+    title: My Blog
+    contentDir: content/en
+    params:
+      description: Notes on technology, ideas, and life
+      author: Your Name
+      dateFormat: January 2, 2006
+      tagline: Between code and everyday life
+      homeTitle: Making things, keeping notes
+      homeSubtitle: Technical practice, personal ideas, and moments worth remembering.
+      profileRole: Blog author
+    menus:
+      main:
+        - identifier: home
+          name: Home
+          pageRef: /
+          weight: 10
+        - identifier: posts
+          name: Posts
+          pageRef: /posts
+          weight: 20
+        - identifier: categories
+          name: Categories
+          pageRef: /categories
+          weight: 30
+        - identifier: tags
+          name: Tags
+          pageRef: /tags
+          weight: 40
+        - identifier: about
+          name: About
+          pageRef: /about
+          weight: 50
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: false
+  highlight:
+    codeFences: true
+    guessSyntax: true
+    lineNos: false
+    noClasses: false
+
+minify:
+  minifyOutput: true
+
+privacy:
+  disqus:
+    disable: true
+  googleAnalytics:
+    disable: true
+  instagram:
+    disable: true
+  vimeo:
+    disable: true
+  x:
+    disable: true
+  youTube:
+    disable: true
