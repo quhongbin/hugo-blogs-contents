@@ -3,7 +3,7 @@ baseURL: https://example.com/
 
 # The theme lives in the sibling directory `/home/q/Blogs/hugo_theme`.
 themesDir: ../
-theme: hugo_theme
+theme: hugo-theme
 
 # Chinese is served from `/`, while English is served from `/en/`.
 defaultContentLanguage: zh-cn
@@ -92,43 +92,43 @@ languages:
           pageRef: /about
           weight: 50
 
-  en:
-    locale: en-US
-    label: English
-    direction: ltr
-    weight: 2
-    title: My Blog
-    contentDir: content/en
-    params:
-      description: Notes on technology, ideas, and life
-      author: Your Name
-      dateFormat: January 2, 2006
-      tagline: Between code and everyday life
-      homeTitle: Making things, keeping notes
-      homeSubtitle: Technical practice, personal ideas, and moments worth remembering.
-      profileRole: Blog author
-    menus:
-      main:
-        - identifier: home
-          name: Home
-          pageRef: /
-          weight: 10
-        - identifier: posts
-          name: Posts
-          pageRef: /posts
-          weight: 20
-        - identifier: categories
-          name: Categories
-          pageRef: /categories
-          weight: 30
-        - identifier: tags
-          name: Tags
-          pageRef: /tags
-          weight: 40
-        - identifier: about
-          name: About
-          pageRef: /about
-          weight: 50
+  # en:
+    # locale: en-US
+    # label: English
+    # direction: ltr
+    # weight: 2
+    # title: My Blog
+    # contentDir: content/en
+    # params:
+    #   description: Notes on technology, ideas, and life
+    #   author: Your Name
+    #   dateFormat: January 2, 2006
+    #   tagline: Between code and everyday life
+    #   homeTitle: Making things, keeping notes
+    #   homeSubtitle: Technical practice, personal ideas, and moments worth remembering.
+    #   profileRole: Blog author
+    # menus:
+    #   main:
+    #     - identifier: home
+    #       name: Home
+    #       pageRef: /
+    #       weight: 10
+    #     - identifier: posts
+    #       name: Posts
+    #       pageRef: /posts
+    #       weight: 20
+    #     - identifier: categories
+    #       name: Categories
+    #       pageRef: /categories
+    #       weight: 30
+    #     - identifier: tags
+    #       name: Tags
+    #       pageRef: /tags
+    #       weight: 40
+    #     - identifier: about
+    #       name: About
+    #       pageRef: /about
+    #       weight: 50
 
 markup:
   goldmark:
