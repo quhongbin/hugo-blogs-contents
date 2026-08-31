@@ -1,29 +1,73 @@
+# ============================================================
+# 站点基础设置
+# ============================================================
+
+# 站点最终部署的绝对地址（结尾必须带 /）。
+# 生成 RSS、sitemap、绝对链接都依赖它，部署前务必改成真实域名。
 # Replace this with the public URL of your site before deployment.
 baseURL: https://example.com/
 
+# 主题目录的位置，相对于项目根。../ 表示上一级目录，
+# 即主题位于 D:\MyAPP\hugo-theme（与本仓库同级的独立 git 仓库）。
 # The theme lives in the sibling directory `/home/q/Blogs/hugo_theme`.
 themesDir: ../
-theme: hugo_theme
+# 主题名称，配合 themesDir 拼出主题路径 D:\MyAPP\hugo-theme。
+theme: hugo-theme
 
-# Chinese is served from `/`, while English is served from `/en/`.
+# ============================================================
+# 多语言设置
+# ============================================================
+
+# 默认语言。内容没有对应语言版本、或匹配不到语言时，回退到该语言。
 defaultContentLanguage: zh-cn
+# 默认语言是否放在子目录里。
+#   false -> 中文在 / ，英文在 /en/（当前行为）
+#   true  -> 中文在 /zh-cn/ ，英文在 /en/
 defaultContentLanguageInSubdir: false
+# 按 CJK（中日韩）规则统计字数与阅读时长。
+# 中文站点必须开启，否则 WordCount 和"阅读时间"会按英文单词规则算错。
 hasCJKLanguage: true
 
+# ============================================================
+# 输出与 SEO
+# ============================================================
+
+# 生成 /robots.txt。
 enableRobotsTXT: true
+# 是否从 git 提交记录读取 .GitInfo（最后修改时间、作者）。
+# 关闭可加快构建；开启则要求内容目录处于 git 版本控制下。
 enableGitInfo: false
+# 时区。影响日期渲染，以及"未来文章是否发布"的判断
+#（Hugo 默认不发布 date 晚于当前时间的文章）。
 timeZone: Asia/Shanghai
 
+# ============================================================
+# 内容组织
+# ============================================================
+
+# 分页设置。列表页每页显示 10 篇，超出部分生成 /page/2/ 等。
 pagination:
   pagerSize: 10
 
+# 自定义固定链接，按 section 分别指定。
+# :slug 取自文件名或 front matter 里的 slug 字段；:year / :month 取自文章日期。
+# 未在此列出的 section（如 about、tags、categories）使用默认路径规则。
 permalinks:
+  # 正式长文带日期层级，便于按时间归档：/posts/2026/08/cpp-templates/
   posts: /posts/:year/:month/:slug/
+  # 速记不带日期，路径更短：/notes/函数名与重载决议/
+  notes: /notes/:slug/
 
+# 分类法（taxonomy）定义，格式为 单数: 复数。
+# front matter 里写 tags: [x] 会生成 /tags/x/ 页面。
+# 未在此列出的分类法会被禁用（例如默认的 authors、series）。
 taxonomies:
   tag: tags
   category: categories
 
+# 各类页面额外生成哪些输出格式。
+# 这里首页、section 页、分类页（taxonomy）、术语页（term）都同时输出 HTML 与 RSS。
+# 未配置的页面默认只输出 HTML。
 outputs:
   home:
     - HTML
@@ -38,13 +82,26 @@ outputs:
     - HTML
     - RSS
 
+# ============================================================
+# params：主题自定义参数
+# 以下不是 Hugo 内置字段，而是本主题约定的变量，
+# 模板中通过 .Site.Params.xxx 读取，改名会导致主题取不到值。
+# ============================================================
+
 params:
+  # 首页文章列表聚合哪些 section。
+  # 这里只放 posts，速记（notes）不进首页流，首页保持为完整长文。
+  # 若想让速记也出现在首页，把 notes 加进这个列表即可。
   mainSections:
     - posts
+  # 头像与站点图标，路径相对于 static/ 目录。
   avatar: images/avatar.webp
   favicon: images/avatar.webp
-  since: 2026
+  # 页脚版权起始年份。
+  since: 2023
+  # 国内 ICP 备案号，部署到境内服务器时需要填写。
   icp: ""
+  # 社交链接数组：name 显示名，icon 图标名（须为主题支持的图标），url 跳转地址。
   social:
     - name: GitHub
       icon: github
@@ -53,24 +110,89 @@ params:
       icon: email
       url: mailto:hello@example.com
 
+  # ---- 加载首屏（splash）----
+  # 首页顶部占据一整屏的引导区，背景复用站点大图（与首页同一张）。
+  # 向下滚动满一屏后，正式的首页内容淡入显示，同时站点背景逐渐模糊。
+  splash:
+    # 是否启用首屏。设为 false 则完全恢复成原来的首页。
+    enable: true
+    # 大标题，留空则使用站点标题 site.Title。
+    title: ""
+    # 副标题，留空则使用 params.tagline。
+    subtitle: ""
+    # 滚动到首页内容时，背景达到的最大模糊半径（px）。
+    blur: 14
+
+  # ---- 每日一言 ----
+  # 显示在首屏中部的短句，从网络接口获取，带打字机与随机入场动画。
+  # 该块放在根 params 下，也可以在各语言的 params 里覆盖（例如换英文数据源和兜底语句）。
+  dailyQuote:
+    # 是否启用每日一言。
+    enable: true
+    # 是否按天缓存：同一天内刷新页面不再重复请求接口，第二天才换一句。
+    cacheDaily: false
+    # 单个数据源的请求超时时间（毫秒），超时后自动尝试下一个。
+    timeout: 6000
+    # 打字机速度（毫秒/字）。实际会自动压缩，保证整句在约 3 秒内打完。
+    typeSpeed: 70
+    # 数据源列表：每次随机挑一个请求，失败则自动换下一个，全部失败时回退到 fallbacks。
+    # url          接口地址，需返回 JSON 且允许跨域（CORS）。
+    # contentField 从响应 JSON 中取「正文」的字段路径，用 . 表示层级。
+    # authorField  从响应 JSON 中取「出处/作者」的字段路径，可留空。
+    sources:
+      # 一言 hitokoto：响应为 { hitokoto, from(出处), from_who(作者), type, ... }
+      - url: "https://v1.hitokoto.cn/?c=i&encode=json"
+        contentField: "hitokoto"
+        authorField: "from"
+      # 今日诗词：响应为 { content, origin(诗词名), author(作者), category }
+      - url: "https://v1.jinrishici.com/all.json"
+        contentField: "content"
+        authorField: "author"
+    # 接口全部不可用时的兜底语句，随机取一条。
+    fallbacks:
+      - content: 把一件事做到极致，胜过把一万件事做得平庸。
+        author: 未知
+      - content: 我们都在阴沟里，但仍有人仰望星空。
+        author: 王尔德
+      - content: 路漫漫其修远兮，吾将上下而求索。
+        author: 屈原
+
+# ============================================================
+# languages：语言级配置
+# 以下字段可覆盖顶层同名设置。
+# ============================================================
+
 languages:
+  # ---------- 简体中文（默认语言，位于站点根 /） ----------
   zh-cn:
+    # 区域标识，用于日期本地化与主题 i18n 取值。
     locale: zh-CN
+    # 语言切换器上显示的名字。
     label: 简体中文
+    # 文字方向，ltr 为从左到右（阿拉伯语等需设为 rtl）。
     direction: ltr
+    # 排序权重：决定语言切换器顺序，也用于同权重页面的排序。
     weight: 1
+    # 该语言下的站点标题。
     title: 我的博客
+    # 该语言独立的内容目录。
     contentDir: content/zh-cn
+    # 语言级 params，会覆盖顶层 params 的同名键。
     params:
       description: 分享技术、思考与生活
       author: 你的名字
+      # 日期格式串，遵循 Go 时间布局：2006=年，1=月，2=日（是占位写法，不是字面量）。
       dateFormat: 2006年1月2日
       tagline: 在代码与生活之间
       homeTitle: 记录创造，也记录生活
       homeSubtitle: 关于技术实践、个人思考，以及值得被记住的日常。
       profileRole: 博客作者
+    # 导航菜单。
     menus:
       main:
+        # identifier：菜单项唯一 ID，用于高亮当前页。
+        # pageRef：指向站内页面，比 url 更好，会跟随多语言与 permalink 变化。
+        # weight：排序权重，数字越小越靠前。
         - identifier: home
           name: 首页
           pageRef: /
@@ -79,6 +201,10 @@ languages:
           name: 文章
           pageRef: /posts
           weight: 20
+        - identifier: notes
+          name: 速记
+          pageRef: /notes
+          weight: 25
         - identifier: categories
           name: 分类
           pageRef: /categories
@@ -92,6 +218,8 @@ languages:
           pageRef: /about
           weight: 50
 
+  # ---------- English（位于 /en/） ----------
+  # 注意：对应的 content/en/ 目录当前不存在，需要补建内容或删除整段配置。
   en:
     locale: en-US
     label: English
@@ -102,11 +230,32 @@ languages:
     params:
       description: Notes on technology, ideas, and life
       author: Your Name
+      # Go 时间布局：January 2, 2006
       dateFormat: January 2, 2006
       tagline: Between code and everyday life
       homeTitle: Making things, keeping notes
       homeSubtitle: Technical practice, personal ideas, and moments worth remembering.
       profileRole: Blog author
+      # 语言级 params 会覆盖根级 params 的同名键。
+      # 这里覆盖 dailyQuote，让英文站在接口不可用时显示英文兜底语句。
+      # 注意：Hugo 的 params 合并是浅合并，覆盖时必须把 sources 等字段一并写全，
+      # 只写 fallbacks 会导致 sources 被整块替换掉。
+      dailyQuote:
+        enable: true
+        cacheDaily: true
+        timeout: 6000
+        typeSpeed: 70
+        sources:
+          - url: "https://v1.hitokoto.cn/?c=i&encode=json"
+            contentField: "hitokoto"
+            authorField: "from"
+        fallbacks:
+          - content: Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away.
+            author: Antoine de Saint-Exupéry
+          - content: We are all in the gutter, but some of us are looking at the stars.
+            author: Oscar Wilde
+          - content: The road ahead is long and far; I will search high and low.
+            author: Qu Yuan
     menus:
       main:
         - identifier: home
@@ -117,6 +266,10 @@ languages:
           name: Posts
           pageRef: /posts
           weight: 20
+        - identifier: notes
+          name: Notes
+          pageRef: /notes
+          weight: 25
         - identifier: categories
           name: Categories
           pageRef: /categories
@@ -130,19 +283,39 @@ languages:
           pageRef: /about
           weight: 50
 
+# ============================================================
+# markup：内容渲染
+# ============================================================
+
 markup:
   goldmark:
     renderer:
+      # 是否允许在 Markdown 中写原始 HTML。
+      # false 为安全默认值；需要嵌入 iframe、视频标签等时改为 true。
       unsafe: false
   highlight:
+    # 启用代码块语法高亮。
     codeFences: true
+    # 代码块未标注语言时，自动猜测语言。
     guessSyntax: true
+    # 是否显示行号。
     lineNos: false
+    # true  = 高亮用内联 style（颜色写死）
+    # false = 高亮用 CSS class，可跟随主题配色方案变化（推荐保持 false）
     noClasses: false
 
+# ============================================================
+# 其他
+# ============================================================
+
+# 执行 hugo --minify 时压缩 HTML / CSS / JS 产物。
 minify:
   minifyOutput: true
 
+# GDPR 隐私保护开关。
+# disable: true 表示这些第三方服务在显式启用前不加载外部脚本、不写 cookie。
+# 注意：这只是禁用隐私相关行为，并不等于接入了统计，
+# 要接入统计还需在 params 中填写对应 ID 并由主题支持。
 privacy:
   disqus:
     disable: true
