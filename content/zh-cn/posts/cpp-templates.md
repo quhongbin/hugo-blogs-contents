@@ -1,6 +1,8 @@
 ---
 author: Hongbin Qu
 title: C++ Templates
+tags: [cs, C++]
+categories: [编程语言]
 ---
 
 # C++ Templates

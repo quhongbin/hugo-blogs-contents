@@ -1,0 +1,220 @@
+# ============================================================
+# Hugo 站点自动构建并发布到 GitHub Pages
+# ============================================================
+# 工作流做了什么：
+#   内容仓库（hugo-blogs-contents）推送更新
+#     -> 检出内容 + 检出主题仓库
+#     -> 用 Hugo 构建出静态文件（public/）
+#     -> 把 public/ 推送到 quhongbin/quhongbin.github.io
+#
+# 首次使用需要做的两件事（只做一次）：
+#   1. 创建一个有写权限的 Personal Access Token，
+#      在本仓库 Settings -> Secrets and variables -> Actions -> New repository secret
+#      添加名为 GH_PAT 的密钥（下面详细说明）。
+#   2. 目标仓库 quhongbin.github.io 的 Settings -> Pages，
+#      Build and deployment -> Source 选择 "Deploy from a branch"，
+#      Branch 选 main、目录选 / (root)，保存。
+# ------------------------------------------------------------
+
+# 工作流名称，会显示在仓库 Actions 页面和提交记录的绿色对勾上。
+name: 部署博客到 GitHub Pages
+
+# ============================================================
+# 触发条件
+# ============================================================
+on:
+  # 推送代码到 main 分支时自动运行。
+  # 如果本地默认分支叫 master，把这里的 main 改掉，否则不会触发。
+  push:
+    branches:
+      - main
+    # 可选的路径过滤：只有这些路径下的文件变化才触发构建。
+    # 用途：改 README、AGENTS.md 这类与站点无关的文件时不必跑一次构建。
+    # 需要启用就删掉下面的 # 号。注意 hugo.yaml 和 .github/ 一定要保留在里面，
+    # 否则改了配置或工作流本身不会重新部署。
+    # paths:
+    #   - 'content/**'
+    #   - 'static/**'
+    #   - 'hugo.yaml'
+    #   - '.github/**'
+
+  # 允许在 Actions 页面手动点 "Run workflow" 触发，方便不推代码也重新部署一次
+  #（比如改了目标仓库的 Pages 设置之后）。
+  workflow_dispatch:
+
+  # 可选：让主题仓库（hugo-theme）更新时也自动重新构建。
+  # 启用方法：在主题仓库里加一个 workflow，内容见本文件末尾注释。
+  # repository_dispatch:
+  #   types: [theme-updated]
+
+# ============================================================
+# 权限
+# ============================================================
+# 遵循最小权限原则：这里只给读权限。
+# 推送到目标仓库用的是下面步骤里的 GH_PAT，不是内置的 GITHUB_TOKEN，
+# 因为 GITHUB_TOKEN 只能操作当前仓库，没有跨仓库推送的权限。
+permissions:
+  contents: read
+
+# ============================================================
+# 并发控制
+# ============================================================
+# 短时间内连续推送时，避免多个构建同时跑、互相覆盖发布结果。
+# cancel-in-progress: false = 排队等前一个跑完再跑，保证最后一次推送的内容最终生效。
+# 若改成 true，则新任务会取消正在跑的旧任务，速度更快但可能漏掉中间某次提交。
+concurrency:
+  group: deploy-to-pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    # 运行环境。ubuntu-latest 即可，Hugo 构建很快（本项目约 1 分钟内完成）。
+    runs-on: ubuntu-latest
+
+    steps:
+      # ------------------------------------------------------------
+      # 1. 检出内容仓库（本仓库）
+      # ------------------------------------------------------------
+      - name: 检出内容仓库
+        uses: actions/checkout@v4
+        with:
+          # fetch-depth: 1 = 只拉最近一次提交，速度最快。
+          # 如果 hugo.yaml 里把 enableGitInfo 改成了 true（用于显示文章最后修改时间），
+          # 这里必须改成 0（拉取完整历史），否则拿不到文件的提交时间。
+          fetch-depth: 1
+
+      # ------------------------------------------------------------
+      # 2. 检出主题仓库
+      # ------------------------------------------------------------
+      # 本站点的内容仓库与主题仓库是分开的两个 git 仓库（hugo.yaml 里
+      # themesDir: ../ 指向同级的 hugo-theme），所以 CI 里必须单独拉一份主题。
+      - name: 检出主题仓库
+        uses: actions/checkout@v4
+        with:
+          # 主题仓库的完整名称，格式是「用户名/仓库名」。
+          repository: quhongbin/hugo-theme
+          # 要拉取的分支。主题仓库默认分支是 main。
+          # 若想锁定主题版本，可以改成标签名或具体的 commit SHA（推荐，避免主题改版把站点搞崩）。
+          ref: main
+          # 跨仓库检出必须提供 token，即使是公开仓库也一样。
+          # GH_PAT 需要在仓库 Settings -> Secrets 里配置，见文件末尾说明。
+          token: ${{ secrets.GH_PAT }}
+          # 检出到工作区内的 themes/hugo-theme，
+          # 与 .github/hugo-ci.yaml 里的 themesDir: themes 对应，两者要一起改。
+          path: themes/hugo-theme
+          fetch-depth: 1
+
+      # ------------------------------------------------------------
+      # 3. 安装 Hugo
+      # ------------------------------------------------------------
+      - name: 安装 Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          # 锁定版本，保证每次构建结果一致、不受上游发布影响。
+          # 主题 hugo-theme 的 theme.toml 要求最低 0.158.0，0.165.0 满足要求。
+          # 升级版本时，建议本地先跑通再改这里，否则 CI 会直接失败。
+          hugo-version: '0.165.0'
+          # extended 扩展版，包含 Sass/SCSS 编译、图片处理(WebP/裁剪)等能力。
+          # 当前主题只用纯 CSS，但开着没有副作用，将来主题用到 SCSS 也不会构建失败。
+          extended: true
+
+      # ------------------------------------------------------------
+      # 4. 构建站点
+      # ------------------------------------------------------------
+      - name: 构建静态站点
+        # TZ：把容器时区设为上海。hugo.yaml 里虽已配 timeZone: Asia/Shanghai，
+        # 这里再设一次更保险，避免「未来时间的文章」因时区偏差被判定为未发布而不输出。
+        env:
+          TZ: Asia/Shanghai
+        run: |
+          # --config 用逗号分隔多份配置，后者覆盖前者：
+          #   hugo.yaml              主配置（内容与本地开发共用）
+          #   .github/hugo-ci.yaml   CI 专用覆盖（themesDir 指向仓库内、baseURL 改成真实域名）
+          # 注意：不要用 --themesDir 覆盖主题目录，实测会被 hugo.yaml 的值覆盖回去导致报
+          #       "module hugo-theme not found"，只能通过追加配置文件的方式覆盖。
+          # --minify：压缩 HTML/CSS/JS，配合 hugo.yaml 里的 minify 配置生效，减小体积。
+          hugo --config "hugo.yaml,.github/hugo-ci.yaml" --minify
+          # 构建产物会输出到 public/（已在 .gitignore 中忽略，不会进内容仓库）。
+
+      # ------------------------------------------------------------
+      # 5. 推送到 <用户名>.github.io 仓库
+      # ------------------------------------------------------------
+      - name: 发布到 quhongbin.github.io
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          # 跨仓库推送必须用 PAT（内置 GITHUB_TOKEN 只作用于本仓库）。
+          personal_token: ${{ secrets.GH_PAT }}
+          # 目标仓库，格式「用户名/仓库名」。GitHub Pages 用户站的固定命名规则是
+          # <用户名>.github.io，访问地址就是 https://quhongbin.github.io/。
+          external_repository: quhongbin/quhongbin.github.io
+          # 推送到目标仓库的哪个分支。该仓库默认分支是 main，
+          # 并且 Pages 的发布源要设置成这个分支（根目录），两者必须一致。
+          publish_branch: main
+          # 要发布哪个目录。Hugo 默认输出到 public/，与上面构建步骤的产物对应。
+          publish_dir: ./public
+          # 是否每次都清空目标分支的历史、只留一个全新提交。
+          #   true（当前值）：每次部署都是单个 commit，仓库不会随构建次数无限膨胀；
+          #                  目标分支上原本存在的其他文件也会被清掉。
+          #   false         ：保留历史提交，适合目标仓库里还放了别的东西的情况。
+          # ⚠️ 注意：无论 true 还是 false，目标分支上「不在 public/ 里的文件」都会被删除
+          #    （例如旧的 Hexo 站点产物）。如需保留旧站内容，请先手动备份一份。
+          force_orphan: true
+          # 生成的 commit 作者信息，显示在目标仓库的提交记录里。
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
+          # 提交信息。push 触发时带上原始 commit message，手动触发时用固定文案。
+          # || 是 GitHub 表达式语法：左边为空则取右边。
+          commit_message: "${{ github.event.head_commit.message || format('手动触发部署 {0}', github.sha) }}"
+          # 若绑定了自定义域名，取消下面这行的注释，会自动在站点根目录生成 CNAME 文件。
+          # 不绑域名就不用管，保持注释状态。
+          # cname: www.example.com
+
+# ============================================================
+# 附录：如何创建 GH_PAT（只需做一次）
+# ============================================================
+# 方式一（推荐）：Fine-grained token，权限更精确
+#   1. GitHub 右上角头像 -> Settings -> Developer settings
+#      -> Personal access tokens -> Fine-grained tokens -> Generate new token
+#   2. Resource owner 选 quhongbin，Repository access 选 "Only select repositories"，
+#      勾选以下三个仓库：
+#        - hugo-blogs-contents  （权限：Contents = Read-only，用于读取代码）
+#        - hugo-theme           （权限：Contents = Read-only，用于检出主题；私有主题才需要，公开仓库也需要 token 才能跨仓库 checkout）
+#        - quhongbin.github.io  （权限：Contents = Read and write，用于推送构建产物）
+#   3. 生成后复制，到 hugo-blogs-contents 仓库
+#      Settings -> Secrets and variables -> Actions -> New repository secret，
+#      Name 填 GH_PAT，Secret 粘贴刚才的 token，保存。
+#
+# 方式二：Classic token（更简单，但权限范围大）
+#   1. Settings -> Developer settings -> Personal access tokens -> Tokens (classic)
+#      -> Generate new token (classic)
+#   2. 勾选 repo（完整仓库读写权限），其余保持不勾。
+#   3. 同样存成 hugo-blogs-contents 仓库的 secret，名字叫 GH_PAT。
+#
+# 备注：
+#   - token 有过期时间，过期后部署会失败，重新生成一个同名 secret 覆盖即可。
+#   - secret 一旦保存就再也看不到内容，只能覆盖，不能查看，请自行保管好。
+#
+# ============================================================
+# 附录（可选）：主题仓库更新时自动重新部署
+# ============================================================
+# 如果希望改了主题也能自动更新线上站点，在 hugo-theme 仓库里加
+# .github/workflows/notify-content.yml，内容如下：
+#
+#   name: 通知内容仓库重新部署
+#   on:
+#     push:
+#       branches: [main]
+#   jobs:
+#     notify:
+#       runs-on: ubuntu-latest
+#       steps:
+#         - name: 触发内容仓库 workflow
+#           run: |
+#             curl -X POST \
+#               -H "Accept: application/vnd.github+json" \
+#               -H "Authorization: Bearer ${{ secrets.CROSS_REPO_TOKEN }}" \
+#               https://api.github.com/repos/quhongbin/hugo-blogs-contents/dispatches \
+#               -d '{"event_type":"theme-updated"}'
+#
+# 其中 CROSS_REPO_TOKEN 是主题仓库里的 secret（需要有 hugo-blogs-contents 的写权限），
+# 同时把本文件上方被注释的 repository_dispatch 那段取消注释。

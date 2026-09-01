@@ -1,0 +1,47 @@
+# ============================================================
+# CI 构建专用配置片段（仅在 GitHub Actions 中使用，本地不要单独引用）
+# ============================================================
+# 作用：叠加在主配置 hugo.yaml 之上，覆盖其中只适用于本地开发的字段。
+# 用法由 .github/workflows/deploy.yml 传入：
+#   hugo --config "hugo.yaml,.github/hugo-ci.yaml"
+# Hugo 的 --config 支持逗号分隔的多份配置，**后出现的覆盖先出现的**，
+# 所以本文件里的键会覆盖 hugo.yaml 的同名键，未列出的键保持 hugo.yaml 原值。
+#
+# 注意：本地预览不要用这份配置。本地主题在上级目录（hugo-theme 仓库），
+# 直接用默认配置 `hugo server` 即可；本文件里的 themesDir 指的是仓库内的 themes/。
+
+# ------------------------------------------------------------
+# 主题目录
+# ------------------------------------------------------------
+# 覆盖 hugo.yaml 里的 themesDir: ../ 。
+# 原因：本地开发时主题在同级目录 D:\MyAPP\hugo-theme（独立 git 仓库），
+# 但 CI 的 actions/checkout 只能把代码检出到工作区内部，
+# workflow 会把主题仓库检出到项目内的 themes/hugo-theme，
+# 因此这里把主题目录指到 themes/。
+#
+# 坑点：themesDir **不能用命令行 --themesDir 覆盖**（Hugo 0.165 实测会被
+# hugo.yaml 里的值覆盖回去，导致构建报 "module hugo-theme not found"），
+# 只能通过 --config 追加配置文件的方式覆盖，这也是本文件存在的唯一理由。
+themesDir: themes
+
+# ------------------------------------------------------------
+# 站点地址
+# ------------------------------------------------------------
+# 覆盖 hugo.yaml 里占位的 baseURL: https://example.com/ 。
+# baseURL 决定站内所有绝对链接、RSS、sitemap.xml、以及 hreflang 标签的地址，
+# 写错会导致部署后样式/JS 加载不到（链接指向错误域名）或 sitemap 无效。
+# 如果已经把 hugo.yaml 里的 baseURL 改成真实地址，本行可以删除。
+#
+# 若绑定了自定义域名（如 www.example.com），把这里改成该域名即可，
+# 同时记得在目标仓库里放一个 CNAME 文件（或在 workflow 里配置 cname 参数）。
+baseURL: https://quhongbin.github.io/
+
+# ------------------------------------------------------------
+# 构建环境（可选，按需打开）
+# ------------------------------------------------------------
+# 下面两项默认注释掉，保持与本地一致的构建结果。
+# 若出现「文章写完推上去了但线上看不到」，多半是文章 date 填了未来时间，
+# 打开 buildFuture 即可强制输出；调试完建议再关掉。
+# buildFuture: true   # 输出 date 晚于当前时间的文章
+# buildDrafts: true   # 输出 draft: true 的草稿
+# buildExpired: true  # 输出 expiryDate 已过期的文章
