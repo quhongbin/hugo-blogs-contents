@@ -11,7 +11,6 @@ baseURL: https://example.com/
 # 即主题位于 D:\MyAPP\hugo-theme（与本仓库同级的独立 git 仓库）。
 # The theme lives in the sibling directory `/home/q/Blogs/hugo_theme`.
 themesDir: ../
-# 主题名称，配合 themesDir 拼出主题路径 D:\MyAPP\hugo-theme。
 theme: hugo-theme
 
 # ============================================================
@@ -157,6 +156,21 @@ params:
       - content: 路漫漫其修远兮，吾将上下而求索。
         author: 屈原
 
+  # ---- 日志（logs）----
+  # 把站内所有带 logs front matter 的页面聚合起来，线性展示每天的记录。
+  # 页面本体由 content/<语言>/logs/_index.md 提供（标题、简介在那里改）；
+  # 哪些内容进日志，则取决于各页面 front matter 里的 logs / logs_descripe 两个字段：
+  #   logs           必填，标记该页面是一条日志；取值预留「日记」「知识」两种，决定条目上的分类徽标。
+  #                  不填这个字段的页面，不会出现在日志页里。
+  #   logs_descripe  可选，该条日志的一句话说明；填了会显示在时间线条目上。
+  logs:
+    # /logs 页面展示哪一块内容：
+    #   timeline  只显示线性时间线（按年 → 月分组，倒序）
+    #   calendar  只显示仿 GitHub 提交记录的贡献日历（最近 53 周热力图）
+    #   both      两者都显示，日历在上、时间线在下；此时点击日历上的某一天会跳到时间线对应那天
+    # 留空或写成其他值，都按 timeline 处理。
+    mode: both
+
 # ============================================================
 # languages：语言级配置
 # 以下字段可覆盖顶层同名设置。
@@ -213,11 +227,52 @@ languages:
           name: 标签
           pageRef: /tags
           weight: 40
+        - identifier: logs
+          name: 日志
+          pageRef: /logs
+          weight: 45
         - identifier: about
           name: 关于
           pageRef: /about
           weight: 50
 
+  # en:
+    # locale: en-US
+    # label: English
+    # direction: ltr
+    # weight: 2
+    # title: My Blog
+    # contentDir: content/en
+    # params:
+    #   description: Notes on technology, ideas, and life
+    #   author: Your Name
+    #   dateFormat: January 2, 2006
+    #   tagline: Between code and everyday life
+    #   homeTitle: Making things, keeping notes
+    #   homeSubtitle: Technical practice, personal ideas, and moments worth remembering.
+    #   profileRole: Blog author
+    # menus:
+    #   main:
+    #     - identifier: home
+    #       name: Home
+    #       pageRef: /
+    #       weight: 10
+    #     - identifier: posts
+    #       name: Posts
+    #       pageRef: /posts
+    #       weight: 20
+    #     - identifier: categories
+    #       name: Categories
+    #       pageRef: /categories
+    #       weight: 30
+    #     - identifier: tags
+    #       name: Tags
+    #       pageRef: /tags
+    #       weight: 40
+    #     - identifier: about
+    #       name: About
+    #       pageRef: /about
+    #       weight: 50
   # ---------- English（位于 /en/） ----------
   # 注意：对应的 content/en/ 目录当前不存在，需要补建内容或删除整段配置。
   en:
@@ -278,6 +333,10 @@ languages:
           name: Tags
           pageRef: /tags
           weight: 40
+        - identifier: logs
+          name: Logs
+          pageRef: /logs
+          weight: 45
         - identifier: about
           name: About
           pageRef: /about
