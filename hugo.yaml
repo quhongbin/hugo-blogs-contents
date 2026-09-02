@@ -44,6 +44,53 @@ timeZone: Asia/Shanghai
 # 内容组织
 # ============================================================
 
+# ---- 模块挂载（module.mounts）：多内容目录的唯一实现方式 ----
+# 背景：contentDir 只能填一个路径，不接受数组，所以「多个内容目录」只能通过
+# 挂载实现。Hugo 内部维护一套「联合文件系统」，mounts 就是把磁盘上任意多个
+# 真实目录，映射（合并）到同一个虚拟目录里，Hugo 之后只认这个虚拟目录。
+#
+# 三个字段的含义：
+#   source  真实存在的源目录。主项目里可以写项目相对路径，也可以写绝对路径
+#           （例如 D:/MyAPP/shared-notes，可挂载项目外的目录，适合把另一个
+#           仓库的内容挂进来）。目录不存在时 Hugo 静默跳过，不报错。
+#   target  映射到联合文件系统里的哪个位置。必须是 Hugo 的 7 个组件目录之一：
+#           content / static / layouts / data / i18n / assets / archetypes。
+#           写成 content/posts 这样的子路径，就能把外部目录直接塞进某个 section。
+#   sites.matrix.languages
+#           这个挂载项只喂给哪些语言。不写则对所有语言生效（中英文站会拿到
+#           同样一份内容，通常不是你想要的）。
+#
+# 四个必须知道的坑（本项目 v0.165.0 实测）：
+#   1. 一旦出现 mounts，Hugo 会丢掉该组件的默认挂载。所以「原内容目录」必须
+#      自己在第一条写出来，不写的话原文章会全部消失（实测 7 篇 posts 全没）。
+#   2. 同名文件冲突时，**写在前面的挂载胜出**，后面的被静默忽略。想让新目录
+#      覆盖旧文章，就把它挪到前面去。
+#   3. mounts 与 contentDir / staticDir / layoutsDir 等旧设置互斥，不能并用。
+#      这也是上面 languages.*.contentDir 被注释掉的原因。
+#   4. v0.153.0 起 lang、includeFiles、excludeFiles 已废弃，对应新写法是
+#      sites 和 files。旧写法暂时还能跑，但不要用。
+#
+# 追加第三个内容目录的方法：照抄下面任意一条，改掉 source 即可，
+# 注意按优先级把更重要的目录放在前面。
+module:
+  mounts:
+    # 中文站内容（第一层，优先级最高）。原来的 contentDir: content/zh-cn。
+    - source: content/zh-cn
+      target: content
+      sites:
+        matrix:
+          languages: ["zh-cn"]
+    # 英文站内容。目录建好并放入 .md 后自动生成 /en/ 下的页面。
+    - source: content/en
+      target: content
+      sites:
+        matrix:
+          languages: ["en"]
+    - source: content/en/cpp-notes
+      target: content/cpp-notes
+      sites:
+        matrix:
+          languages: ["en"]
 # 分页设置。列表页每页显示 10 篇，超出部分生成 /page/2/ 等。
 pagination:
   pagerSize: 10
@@ -210,8 +257,11 @@ languages:
     weight: 1
     # 该语言下的站点标题。
     title: 我的博客
-    # 该语言独立的内容目录。
-    contentDir: content/zh-cn
+    # 该语言独立的内容目录 —— 已迁移到下面的 module.mounts，此处不再设置。
+    # 原因：Hugo 规定一旦用 mounts 挂载到 content 组件，就不能再使用 contentDir，
+    # 二者互斥（官方文档明确要求）。该语言的内容来源现在由
+    # module.mounts 中 sites.matrix.languages 含 zh-cn 的条目决定。
+    # 若把它加回来，Hugo 会忽略 mounts 里的语言设置，导致中英文内容串台。
     # 语言级 params，会覆盖顶层 params 的同名键。
     params:
       description: 分享技术、思考与生活
@@ -257,52 +307,16 @@ languages:
           pageRef: /about
           weight: 50
 
-  # en:
-    # locale: en-US
-    # label: English
-    # direction: ltr
-    # weight: 2
-    # title: My Blog
-    # contentDir: content/en
-    # params:
-    #   description: Notes on technology, ideas, and life
-    #   author: Your Name
-    #   dateFormat: January 2, 2006
-    #   tagline: Between code and everyday life
-    #   homeTitle: Making things, keeping notes
-    #   homeSubtitle: Technical practice, personal ideas, and moments worth remembering.
-    #   profileRole: Blog author
-    # menus:
-    #   main:
-    #     - identifier: home
-    #       name: Home
-    #       pageRef: /
-    #       weight: 10
-    #     - identifier: posts
-    #       name: Posts
-    #       pageRef: /posts
-    #       weight: 20
-    #     - identifier: categories
-    #       name: Categories
-    #       pageRef: /categories
-    #       weight: 30
-    #     - identifier: tags
-    #       name: Tags
-    #       pageRef: /tags
-    #       weight: 40
-    #     - identifier: about
-    #       name: About
-    #       pageRef: /about
-    #       weight: 50
-  # ---------- English（位于 /en/） ----------
-  # 注意：对应的 content/en/ 目录当前不存在，需要补建内容或删除整段配置。
   en:
     locale: en-US
     label: English
     direction: ltr
     weight: 2
     title: My Blog
-    contentDir: content/en
+    # 该语言独立的内容目录 —— 已迁移到下面的 module.mounts，此处不再设置。
+    # 目前 content/en/ 目录还不存在，所以英文站是空的；
+    # 建好目录并放进 .md 文件后即可自动生成 /en/ 下的页面。
+    # contentDir: content/en
     params:
       description: Notes on technology, ideas, and life
       author: Your Name
