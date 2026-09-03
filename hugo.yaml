@@ -140,6 +140,38 @@ params:
   # 若想让速记也出现在首页，把 notes 加进这个列表即可。
   mainSections:
     - posts
+
+  # ---- 数学公式（math）----
+  # 文章内的 LaTeX 由主题通过 KaTeX 渲染（CSS/JS 走 jsDelivr CDN，见主题
+  # layouts/partials/math.html 与 math-head.html，版本固定 0.16.11）。
+  # 两种写法：
+  #   1) 行内 $E=mc^2$ 与块级 $$...$$：Goldmark 原样保留，页面加载时由 KaTeX
+  #      auto-render 自动扫描正文渲染。简单公式直接用这种最方便。
+  #   2) 围栏代码块 ```math ... ``` 或 ```latex ... ```：经主题的
+  #      layouts/_markup/render-codeblock-math.html 渲染成 <div class="katex-block">，
+  #      内容是字面值（反斜杠命令 \, \\ \{ \} 完整保留），适合多行公式 /
+  #      对齐环境（aligned、cases）/ 带间距命令（\, \; \quad）的公式。
+  #      ⚠️ Goldmark 会把「反斜杠 + 标点」当成 CommonMark 转义吃掉，所以
+  #      行内写法里的 \\ 换行、\, 间距会丢失——复杂公式务必用第 2 种围栏写法。
+  # 启用开关（二者任一为真即加载 KaTeX）：
+  #   enabled: true  -> 全站所有页面都加载 KaTeX（默认，最省心，文章无需额外标注）；
+  #   enabled: false -> 不全局加载，仅在单篇文章 front matter 写 math: true 时才加载。
+  # 单篇文章也可写 math: true 强制开启（即使 enabled 为 false）。
+  math:
+    enabled: true
+
+  # ---- 文章分类菜单（categoriesMenu）----
+  # 分类入口集成在「文章」导航按钮下，不再占用导航栏的独立按钮：
+  #   PC 端鼠标悬停「文章」展开，移动端点按「文章」展开。
+  # 整个块删掉也不报错，主题按下方默认值处理。
+  categoriesMenu:
+    # 下拉列表的分类条数上限，默认 6。
+    #   分类总数 ≤ 上限：展开为普通下拉列表（名称 + 文章数徽标）；
+    #   分类总数 > 上限：改为全屏卡片面板——背景虚化，卡片宽度随分类名
+    #   长度自适应，点击卡片跳转到对应分类页。
+    # 两种形态都带「全部文章」入口，/posts 页面始终可达。
+    limit: 6
+
   # 头像与站点图标，路径相对于 static/ 目录。
   avatar: images/avatar.webp
   favicon: images/avatar.webp
@@ -290,10 +322,9 @@ languages:
           name: 速记
           pageRef: /notes
           weight: 25
-        - identifier: categories
-          name: 分类
-          pageRef: /categories
-          weight: 30
+        # 「分类」不再作为独立菜单项：已集成到上方「文章」按钮下
+        #（悬停/点按展开），展示形态由 params.categoriesMenu.limit 控制。
+        # /categories 页面本身仍存在，可从侧边栏等入口访问。
         - identifier: tags
           name: 标签
           pageRef: /tags
@@ -360,10 +391,9 @@ languages:
           name: Notes
           pageRef: /notes
           weight: 25
-        - identifier: categories
-          name: Categories
-          pageRef: /categories
-          weight: 30
+        # "Categories" is no longer a standalone menu item: it is now
+        # integrated under the "Posts" button above (hover/tap to expand),
+        # controlled by params.categoriesMenu.limit.
         - identifier: tags
           name: Tags
           pageRef: /tags
@@ -386,6 +416,9 @@ markup:
     renderer:
       # 是否允许在 Markdown 中写原始 HTML。
       # false 为安全默认值；需要嵌入 iframe、视频标签等时改为 true。
+      # 注意：数学公式（KaTeX）不需要把它改成 true——行内 $...$ / $$...$$ 里的
+      # < > & 会被 Goldmark 转义成实体，但浏览器解析 DOM 时会还原，KaTeX 读
+      # textContent 拿到的是正确字符；复杂公式改用 ```math 围栏写法更稳妥。
       unsafe: false
   highlight:
     # 启用代码块语法高亮。
