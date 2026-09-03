@@ -1,7 +1,8 @@
 ---
 title: "constant-string"
 author: ["DESKTOP-LC3M84B"]
-tags: ["CPP"]
+tags: ["Data Type"]
+categories: ["CPP"]
 draft: false
 logs: "powered by AI"
 ---

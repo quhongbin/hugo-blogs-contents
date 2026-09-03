@@ -1,7 +1,7 @@
 ---
 title: "control_flow"
 author: ["DESKTOP-LC3M84B"]
-tags: ["CPP"]
+tags: ["Grammer"]
 draft: false
 logs: "power by AI"
 ---

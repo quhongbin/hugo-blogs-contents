@@ -1,11 +1,11 @@
 ---
-title: "Class"
+title: "Virtual"
 author: ["Hongbin Qu"]
 date: 2026-05-21T00:00:00+08:00
-tags: ["CPP"]
+tags: ["Data Type"]
+categories: ["CPP"]
 draft: false
-logs: "test"
-logs_descripe: "中文测试"
+logs: "power by AI"
 ---
 
 ## virtual {#virtual}

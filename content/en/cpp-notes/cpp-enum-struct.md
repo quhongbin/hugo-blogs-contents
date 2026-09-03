@@ -2,7 +2,8 @@
 title: "C++ Enum vs Struct Class"
 author: ["Hongbin Qu"]
 date: 2025-05-27T00:00:00+08:00
-tags: ["CPP"]
+tags: ["Data Type", "Data Struct"]
+categories: ["CPP"]
 draft: false
 logs: "power by AI"
 ---

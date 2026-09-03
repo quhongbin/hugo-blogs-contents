@@ -2,7 +2,8 @@
 title: "Copy Constructors"
 author: ["Hongbin Qu"]
 date: 2025-05-27T00:00:00+08:00
-tags: ["CPP"]
+tags: ["Memory Management", "RAII"]
+categories: ["CPP"]
 draft: false
 logs: "power by AI"
 ---

@@ -2,7 +2,8 @@
 title: "C++ Memory Management"
 author: ["Hongbin Qu"]
 date: 2025-05-27T00:00:00+08:00
-tags: ["CPP"]
+tags: ["Memory Management"]
+categories: ["CPP"]
 draft: false
 logs: "power by AI"
 ---

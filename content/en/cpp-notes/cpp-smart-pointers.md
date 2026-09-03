@@ -2,10 +2,10 @@
 title: "C++ Smart Pointers & Ref"
 author: ["Hongbin Qu"]
 date: 2025-05-27T00:00:00+08:00
-tags: ["CPP"]
+tags: ["Pointer", "Memory Management"]
+categories: ["CPP"]
 draft: false
-logs: "test"
-logs_descripe: "中文测试"
+logs: "power by AI"
 ---
 
 ## C++ Smart Pointers &amp; Ref {#c-plus-plus-smart-pointers-and-ref}

@@ -1,8 +1,9 @@
 ---
-title: "nullptr"
+title: "C++ nullptr"
 author: ["Hongbin Qu"]
 date: 2026-07-11T00:00:00+08:00
-tags: ["CPP"]
+tags: ["pointer"]
+categories: ["CPP"]
 draft: false
 logs: "power by AI"
 ---
