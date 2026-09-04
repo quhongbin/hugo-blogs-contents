@@ -3,3 +3,10 @@ public/
 # CI 构建时由 actions/checkout 拉取主题仓库生成的目录，本地不需要也不应提交。
 # 本地开发用的是上级目录的同级仓库 hugo-theme（hugo.yaml 中 themesDir: ../）。
 themes/
+
+# OSS 上传工具编译产物
+scripts/oss-uploader/oss-uploader
+# 图片 OSS 映射文件（自动生成）
+data/oss-images.json
+# Hugo 资源处理缓存目录
+resources/

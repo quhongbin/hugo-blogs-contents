@@ -1,6 +1,5 @@
 ---
 title: "operating-system"
-author: ["DESKTOP-LC3M84B"]
 tags: ["OSTEP"]
 categories: ["Operating System"]
 draft: false

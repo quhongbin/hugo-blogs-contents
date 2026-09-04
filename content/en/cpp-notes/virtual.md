@@ -99,7 +99,7 @@ int main() {
 
 ### construction and destruction {#construction-and-destruction}
 
-{{< figure src="../Excalidraw/virtual_keyword.png" >}}
+{{< figure src="/ox-hugo/virtual_keyword.png" >}}
 
 -   if base class add virtual keyword for destructor function,
     therefore all derived class for destructor implicitly own virtual attribute
@@ -137,3 +137,8 @@ int main() {
 ```text
 Draw Circle
 ```
+
+
+### Reloaeted Notes {#reloaeted-notes}
+
+[os-reference]({{< relref "../os/operating-system.md" >}})
