@@ -1,0 +1,52 @@
+{{/*
+  Hugo render hook：拦截 Markdown 链接 `[text](url)` 和 `<url>` 自动链接。
+
+  仅当目标是本地图片文件时才尝试替换为远程 OSS URL，
+  普通站内导航链接、外部链接、shortcode 链接（如 {{< relref >}}）一律原样输出。
+
+  查找策略与 render-image.html / shortcodes/figure.html 一致：
+    1. 远程 URL（http/https/data:）→ 原样输出
+    2. .Page.Resources.Get（页面资源）
+    3. resources.Get（assets/ 全局资源）
+    4. 兜底：site.Data.oss-images 按 hasSuffix 匹配（整路径或文件名）
+*/}}
+
+{{- $dest := .Destination -}}
+{{- $text := .PlainText | safeHTML -}}
+
+{{- /* 是否为远程 URL */ -}}
+{{- $isRemote := false -}}
+{{- if or (hasPrefix $dest "http://") (hasPrefix $dest "https://") (hasPrefix $dest "data:") (hasPrefix $dest "mailto:") -}}
+  {{- $isRemote = true -}}
+{{- end -}}
+
+{{- /* 是否为受支持扩展名的图片 */ -}}
+{{- $isImage := false -}}
+{{- $lower := lower $dest -}}
+{{- range $ext := slice ".png" ".jpg" ".jpeg" ".gif" ".svg" ".webp" ".bmp" ".ico" -}}
+  {{- if (hasSuffix $lower $ext) -}}
+    {{- $isImage = true -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $finalDest := $dest -}}
+
+{{- if and (not $isRemote) $isImage -}}
+  {{- with .Page.Resources.Get $dest -}}
+    {{- $finalDest = .RelPermalink -}}
+  {{- else -}}
+    {{- with resources.Get $dest -}}
+      {{- $finalDest = .RelPermalink -}}
+    {{- else -}}
+      {{- /* 兜底：按 basename 与整路径 hasSuffix 匹配 OSS 映射 */ -}}
+      {{- $destBase := path.Base $dest -}}
+      {{- range $key, $entry := index site.Data "oss-images" -}}
+        {{- if or (hasSuffix $key $dest) (hasSuffix $key $destBase) -}}
+          {{- $finalDest = $entry.url -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+<a href="{{ $finalDest }}">{{ $text }}</a>

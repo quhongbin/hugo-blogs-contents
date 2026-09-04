@@ -1,0 +1,51 @@
+{{/*
+  Hugo render hook：拦截 Markdown 中的图片语法。
+
+  解析顺序：
+    1. 远程 URL（http/https/data:）→ 直接使用原 src
+    2. 页面资源（.Page.Resources.Get，page bundle 场景）
+    3. 全局资源（resources.Get，assets/ 目录）
+    4. 兜底：在 site.Data.oss-images 映射中按路径后缀匹配，
+       用于 ox-hugo 那种 /ox-hugo/... 风格的相对引用
+
+  Markdown 源文件不会被修改；替换发生在 Hugo 渲染阶段。
+*/}}
+
+{{- $src := .Destination -}}
+{{- $alt := .PlainText | default "" -}}
+{{- $title := .Title | default "" -}}
+{{- $loading := "lazy" -}}
+
+{{- /* 是否为远程 URL */ -}}
+{{- $isRemote := false -}}
+{{- if or (hasPrefix $src "http://") (hasPrefix $src "https://") (hasPrefix $src "data:") -}}
+  {{- $isRemote = true -}}
+{{- end -}}
+
+{{- $finalSrc := $src -}}
+
+{{- if not $isRemote -}}
+  {{- /* 1. 尝试页面资源（page bundle：与 .md 同目录下的图片） */ -}}
+  {{- with .Page.Resources.Get $src -}}
+    {{- $finalSrc = .RelPermalink -}}
+  {{- else -}}
+    {{- /* 2. 尝试全局资源（assets/ 目录） */ -}}
+    {{- with resources.Get $src -}}
+      {{- $finalSrc = .RelPermalink -}}
+    {{- else -}}
+      {{- /* 3. 兜底：到 oss-images 映射中按 hasSuffix 匹配。
+          试两种匹配：
+            - src 整体（处理 /ox-hugo/foo.png、images/foo.png）
+            - 仅文件名（处理裸 foo.png 以及 images/foo.png 这种
+              与映射 key 路径前缀不匹配的情况） */ -}}
+      {{- $srcBase := path.Base $src -}}
+      {{- range $key, $entry := index site.Data "oss-images" -}}
+        {{- if or (hasSuffix $key $src) (hasSuffix $key $srcBase) -}}
+          {{- $finalSrc = $entry.url -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+<img src="{{ $finalSrc }}" alt="{{ $alt }}"{{ with $title }} title="{{ . }}"{{ end }} loading="{{ $loading }}" />

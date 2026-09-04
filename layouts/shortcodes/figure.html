@@ -1,0 +1,47 @@
+{{/*
+  自定义 figure shortcode：覆盖 Hugo 内置的 `figure`，
+  在渲染时把 src 指向 OSS 远程 URL（如果命中 data/oss-images 映射）。
+
+  与 layouts/_default/_markup/render-image.html 的查找策略一致：
+    1. 远程 URL 原样输出
+    2. 尝试 .Page.Resources.Get（page bundle）
+    3. 尝试 resources.Get（assets/）
+    4. 兜底：site.Data.oss-images 按 basename 或整路径 hasSuffix 匹配
+
+  使用方式与 Hugo 原生 figure 完全相同：{{< figure src="/ox-hugo/foo.png" >}}
+*/}}
+
+{{- $src := .Get "src" -}}
+{{- $alt := .Get "alt" | default "" -}}
+{{- $title := .Get "title" | default "" -}}
+{{- $loading := .Get "loading" | default "lazy" -}}
+
+{{- /* 是否为远程 URL */ -}}
+{{- $isRemote := false -}}
+{{- if or (hasPrefix $src "http://") (hasPrefix $src "https://") (hasPrefix $src "data:") -}}
+  {{- $isRemote = true -}}
+{{- end -}}
+
+{{- $finalSrc := $src -}}
+
+{{- if not $isRemote -}}
+  {{- /* 1. 尝试页面资源 */ -}}
+  {{- with .Page.Resources.Get $src -}}
+    {{- $finalSrc = .RelPermalink -}}
+  {{- else -}}
+    {{- /* 2. 尝试全局资源 */ -}}
+    {{- with resources.Get $src -}}
+      {{- $finalSrc = .RelPermalink -}}
+    {{- else -}}
+      {{- /* 3. 兜底：按 hasSuffix 匹配 OSS 映射（整体 src + basename 两种） */ -}}
+      {{- $srcBase := path.Base $src -}}
+      {{- range $key, $entry := index site.Data "oss-images" -}}
+        {{- if or (hasSuffix $key $src) (hasSuffix $key $srcBase) -}}
+          {{- $finalSrc = $entry.url -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+<img src="{{ $finalSrc }}" alt="{{ $alt }}"{{ with $title }} title="{{ . }}"{{ end }} loading="{{ $loading }}" />
