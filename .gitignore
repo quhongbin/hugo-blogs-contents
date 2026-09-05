@@ -6,6 +6,8 @@ themes/
 
 # OSS 上传工具编译产物
 scripts/oss-uploader/oss-uploader
+# OSS 链接替换工具编译产物（源码目录本身要提交到仓库，CI 要编译它）
+scripts/oss-replacer/oss-replacer
 # 图片 OSS 映射文件（自动生成）
 data/oss-images.json
 # Hugo 资源处理缓存目录
