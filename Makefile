@@ -10,9 +10,9 @@
 
 # ---------- 可配置变量 ----------
 # OSS 地域，例如 cn-hangzhou、cn-beijing、oss-cn-shanghai
-OSS_REGION           ?= cn-hangzhou
+OSS_REGION           ?= cn-shenzhen
 # OSS bucket 名称（必填）
-OSS_BUCKET_NAME      ?=
+OSS_BUCKET_NAME      ?= blog-cetkit
 # OSS 存储前缀
 OSS_IMAGE_PREFIX     ?= blog-images/
 # CDN 自定义域名；留空则使用 OSS 默认域名
