@@ -13,7 +13,8 @@ logs_descripe: "I am write the blogs for a few months. In the time, I have gave 
 
 :ID:       84dc9817-d304-46ce-b33f-273bfeee4f09
 
--   A basic resources unit which is assigned with memory in OS
+n- A basic resources unit which is assigned with memory in OS
+
 -   Has isolated memory address
 
 
@@ -106,7 +107,7 @@ exact copy of the calling process. To the OS, there are two same programs is run
 -   the wait() system call
 
 
-#### Process Creation: A Little More Detail <span class="tag"><span class="ATTACH">ATTACH</span></span> {#process-creation-a-little-more-detail}
+#### Process Creation: A Little More Detail {#process-creation-a-little-more-detail}
 
 {{< figure src="/ox-hugo/clipboard-20260607T155546.png" >}}
 
@@ -127,13 +128,13 @@ To truly understand how lazy loading of pieces of code and data, we have to unde
 Summary,before running anything, the OS clearly must do some work to get the important program bits from disk into memory
 
 
-#### Process States <span class="tag"><span class="ATTACH">ATTACH</span></span> {#process-states}
+#### Process States {#process-states}
 
 -   Running
 -   Ready
 -   Blocked
 
-{{< figure src="/ox-hugo/clipboard-20260607T163538.png" >}}
+[[![](/ox-hugo/clipboard-20260607T163538.png)]
 
 
 #### Data Structures {#data-structures}
@@ -299,10 +300,10 @@ OS with hardware's help turns the ugly physical mechanism into something that is
     1.  internal fragmentation
         As it allocate a fixed-sized contiguous physical memory for entire process(include codes, heap, stack so forth), the spaces bettwen head and stack is internal fragmentation;
 
-    [dynamic relocation internal fragmentation](/ox-hugo/dynamic-relocation.png)
+    {{< figure src="/ox-hugo/dynamic-relocation.png" >}}
 
 
-### <span class="org-todo todo DOING">DOING</span> segmentation {#segmentation}
+### <span class="org-todo todo DOING">DOING</span> segmenation {#segmenation}
 
 > The base-and-bound pair below is inside one of CPU cache specilly, just one pair. Under the situation, the pair was used to switch context each of processes, just only one pair. It has cost performance additional. And it's not as flexible as we would like
 
@@ -473,11 +474,6 @@ when managed region memory space have contiguous address, The machenism is trigg
 -   First Fit
 -   Next Fit
 -   segregated Lists
-
-
-## <span class="org-todo todo TODO">TODO</span> test {#test}
-
--   to explain stack memory how to allocate<span class="timestamp-wrapper"><span class="timestamp">&lt;2026-07-10 Fri&gt;</span></span>
 
 [^fn:1]: **convey effect**:  the process of CPU-bound or heavyweight resource to consume runs exclusively on CPU. otherwise, there are a pile of processes need light resource to consume behind the heavy process
 
