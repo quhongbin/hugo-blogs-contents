@@ -3,7 +3,7 @@ title: "Basic Overview"
 author: ["Hongbin Qu"]
 date: 2026-09-07T00:00:00+08:00
 tags: ["computer organization and architecture"]
-categories: ["cs", "org-arch"]
+categories: ["cs-architecture"]
 draft: false
 ---
 

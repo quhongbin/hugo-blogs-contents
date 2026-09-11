@@ -3,7 +3,7 @@ title: "Machine Performance For Program"
 author: ["Hongbin Qu"]
 date: 2026-09-09T00:00:00+08:00
 tags: ["computer organization and architecture"]
-categories: ["cs"]
+categories: ["cs-architecture"]
 draft: false
 logs: "程序的机器级别表示"
 logs_descripe: "哎，神是孤独！！！"
@@ -11,30 +11,28 @@ logs_descripe: "哎，神是孤独！！！"
 
 ## 程序的转换及机器级表示 {#程序的转换及机器级表示}
 
----
-
 
 ## 本章学习地图 {#本章学习地图}
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
-    A["C语言源程序"] --&gt; B["编译器"]
-    B --&gt; C["汇编程序"]
-    C --&gt; D["汇编器"]
-    D --&gt; E["机器代码"]
-    E --&gt; F["CPU按ISA执行"]
+    A["C语言源程序"] --> B["编译器"]
+    B --> C["汇编程序"]
+    C --> D["汇编器"]
+    D --> E["机器代码"]
+    E --> F["CPU按ISA执行"]
 
-G["IA-32指令系统"] --&gt; H["数据格式"]
-G --&gt; I["寄存器与寻址"]
-G --&gt; J["机器指令格式"]
-G --&gt; K["常用指令"]
+    G["IA-32指令系统"] --> H["数据格式"]
+    G --> I["寄存器与寻址"]
+    G --> J["机器指令格式"]
+    G --> K["常用指令"]
 
-    L["C语言机器级表示"] --&gt; M["过程调用"]
-    L --&gt; N["选择与循环"]
-    L --&gt; O["数组、结构体、联合体"]
-    O --&gt; P["数据对齐"]
-    G --&gt; Q["x86-64扩展"]
-\`\`\`
+    L["C语言机器级表示"] --> M["过程调用"]
+    L --> N["选择与循环"]
+    L --> O["数组、结构体、联合体"]
+    O --> P["数据对齐"]
+    G --> Q["x86-64扩展"]
+```
 
 本章有三条核心主线：
 
@@ -47,6 +45,13 @@ G --&gt; K["常用指令"]
 -   `R[eax]` ：寄存器EAX的内容。
 -   `M[addr]` ：从地址 `addr` 开始的存储单元内容。
 -   `R[eax] <- M[R[ebp]+4]` ：把 `EBP+4` 所指内存中的数据送入EAX。
+
+本文章使用IA-32指令集,AT&amp;T语法格式演示
+
+同一个指令集拥有是不同的语法，但它们都会正确的翻译成对应的目标硬件的机器码。具体知识请查看[架构]({{< relref "Architecture#一-核心问题-什么是-架构" >}})
+
+在Intel语法中，靠括号[]来区分内存（mov eax, [ebx]），寄存器直接写。
+在AT&amp;T语法中，靠前缀%来区分寄存器（movl (%ebx), %eax），内存靠括号。
 
 ---
 
@@ -105,12 +110,14 @@ G --&gt; K["常用指令"]
     -   返回值放在 `%eax` 中。
     -   `ret` 从栈中取得返回地址并返回调用者。
 
-    \`\`\`mermaid
+    <!--listend-->
+
+    ```mermaid
     flowchart LR
-        A["C表达式 a+b"] --&gt; B["汇编：mov/add"]
-        B --&gt; C["二进制机器指令"]
-        C --&gt; D["CPU取指、译码、执行"]
-    \`\`\`
+        A["C表达式 a+b"] --> B["汇编：mov/add"]
+        B --> C["二进制机器指令"]
+        C --> D["CPU取指、译码、执行"]
+    ```
 
 <!--list-separator-->
 
@@ -126,13 +133,13 @@ G --&gt; K["常用指令"]
 
 指令集体系结构ISA是软件与硬件之间的接口规范。编译器按照ISA生成机器代码，处理器则负责正确实现这些指令的语义。
 
-\`\`\`mermaid
+```mermaid
 flowchart TB
-    A["应用程序"] --&gt; B["编译器和操作系统"]
-    B --&gt; C["ISA：软硬件接口"]
-    C --&gt; D["处理器微体系结构"]
-    D --&gt; E["流水线、执行单元、Cache和物理寄存器"]
-\`\`\`
+    A["应用程序"] --> B["编译器和操作系统"]
+    B --> C["ISA：软硬件接口"]
+    C --> D["处理器微体系结构"]
+    D --> E["流水线、执行单元、Cache和物理寄存器"]
+```
 
 <!--list-separator-->
 
@@ -185,7 +192,7 @@ flowchart TB
 
 <!--list-separator-->
 
--  示例：实现\`c=a+b\`
+-  示例：实现 `c=a+b`
 
     装入-存储型指令系统可抽象为：
 
@@ -210,30 +217,30 @@ flowchart TB
 
 -  现代处理器中的融合
 
-    \`\`\`mermaid
+    ```mermaid
     flowchart LR
-        A["复杂x86指令"] --&gt; B["前端译码"]
-        B --&gt; C["内部微操作"]
-        C --&gt; D["调度与乱序执行"]
-        D --&gt; E["执行单元"]
-    \`\`\`
+        A["复杂x86指令"] --> B["前端译码"]
+        B --> C["内部微操作"]
+        C --> D["调度与乱序执行"]
+        D --> E["执行单元"]
+    ```
 
     现代x86处理器对外保持CISC形式，对内常把复杂指令转换成较简单的微操作。因此“RISC一定比CISC快”并不成立；性能还取决于实现、缓存、编译器和工作负载。
 
 
 #### 3.1.4 生成机器代码的过程 {#3-dot-1-dot-4-生成机器代码的过程}
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
-    A["源程序 .c"] --&gt; B["预处理"]
-    B --&gt; C["预处理结果 .i"]
-    C --&gt; D["编译"]
-    D --&gt; E["汇编程序 .s"]
-    E --&gt; F["汇编"]
-    F --&gt; G["可重定位目标文件 .o"]
-    G --&gt; H["链接"]
-    H --&gt; I["可执行文件"]
-\`\`\`
+    A["源程序 .c"] --> B["预处理"]
+    B --> C["预处理结果 .i"]
+    C --> D["编译"]
+    D --> E["汇编程序 .s"]
+    E --> F["汇编"]
+    F --> G["可重定位目标文件 .o"]
+    G --> H["链接"]
+    H --> I["可执行文件"]
+```
 
 <!--list-separator-->
 
@@ -286,11 +293,11 @@ flowchart LR
 
     观察代码可使用：
 
-    \`\`\`bash
+    ```bash
     gcc -m32 -O0 -S example.c -o example_O0.s
     gcc -m32 -O2 -S example.c -o example_O2.s
     objdump -d example.o
-    \`\`\`
+    ```
 
     ---
 
@@ -333,12 +340,12 @@ IA-32指令主要按操作数宽度处理位串。位串本身不携带“有符
     0x1003: 12
     ```
 
-    \`\`\`mermaid
+    ```mermaid
     flowchart LR
-        A["低地址 0x1000&lt;br/&gt;78"] --&gt; B["0x1001&lt;br/&gt;56"]
-        B --&gt; C["0x1002&lt;br/&gt;34"]
-        C --&gt; D["高地址 0x1003&lt;br/&gt;12"]
-    \`\`\`
+        A["低地址 0x1000<br/>78"] --> B["0x1001<br/>56"]
+        B --> C["0x1002<br/>34"]
+        C --> D["高地址 0x1003<br/>12"]
+    ```
 
 <!--list-separator-->
 
@@ -382,12 +389,14 @@ IA-32指令主要按操作数宽度处理位串。位串本身不携带“有符
     -   `EFLAGS` 保存条件码和控制标志。
     -   段寄存器参与IA-32分段机制。
 
-    \`\`\`mermaid
+    <!--listend-->
+
+    ```mermaid
     flowchart TB
-        EAX["EAX：32位"] --&gt; AX["AX：低16位"]
-        AX --&gt; AH["AH：第8～15位"]
-        AX --&gt; AL["AL：低8位"]
-    \`\`\`
+        EAX["EAX：32位"] --> AX["AX：低16位"]
+        AX --> AH["AH：第8～15位"]
+        AX --> AL["AL：低8位"]
+    ```
 
 <!--list-separator-->
 
@@ -416,11 +425,11 @@ IA-32指令主要按操作数宽度处理位串。位串本身不携带“有符
 -  常见寻址方式
 
     ```asm
-    movl $10, %eax              * 立即寻址
-    movl %ebx, %eax             * 寄存器寻址
-    movl (%eax), %edx           * 寄存器间接
-    movl 8(%ebp), %eax          * 基址加位移
-    movl (%eax,%ecx,4), %edx    * 基址+变址×比例
+    movl $10, %eax              // 立即寻址
+    movl %ebx, %eax             // 寄存器寻址
+    movl (%eax), %edx           // 寄存器间接
+    movl 8(%ebp), %eax          // 基址加位移
+    movl (%eax,%ecx,4), %edx    // 基址+变址×比例
     ```
 
     若 `%eax` 保存 `int a[]` 的首地址、 `%ecx` 保存下标 `i` ，最后一条指令实现 `edx=a[i]` 。
@@ -430,14 +439,14 @@ IA-32指令主要按操作数宽度处理位串。位串本身不携带“有符
 
 IA-32指令采用1～15字节的可变长度编码，通常由以下部分组成：
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
-    A["可选前缀"] --&gt; B["操作码"]
-    B --&gt; C["可选 ModR/M"]
-    C --&gt; D["可选 SIB"]
-    D --&gt; E["可选位移量"]
-    E --&gt; F["可选立即数"]
-\`\`\`
+    A["可选前缀"] --> B["操作码"]
+    B --> C["可选 ModR/M"]
+    C --> D["可选 SIB"]
+    D --> E["可选位移量"]
+    E --> F["可选立即数"]
+```
 
 -   ****前缀**** ：改变操作数长度、地址长度、重复方式或锁定语义。
 -   ****操作码**** ：规定基本操作。
@@ -521,13 +530,15 @@ flowchart LR
     popl:  EBX <- M[ESP]; ESP <- ESP+4
     ```
 
-    \`\`\` mermaid
+    ```mermaid
     flowchart LR
-        A["push前"] --&gt; B["ESP减4"]
-        B --&gt; C["写入新栈顶"]
-        C --&gt; D["pop读取栈顶"]
-        D --&gt; E["ESP加4"]
-    \`\`\`
+        A["push前"] --> B["ESP减4"]
+        B --> C["写入新栈顶"]
+        C --> D["pop读取栈顶"]
+        D --> E["ESP加4"]
+    ```
+
+    因为在x86架构中，栈是“向下生长”的（从高地址向低地址扩展）,所以ESP栈顶指针在扩展栈空间时进行“减”运算
 
     注意： `lea` 与 `mov` 的根本差别是前者不访存； `push/pop` 会隐式修改ESP。
 
@@ -559,9 +570,9 @@ cmpl %ebx, %eax
 -  乘法
 
     ```asm
-    mull operand       * EDX:EAX <- EAX * operand，无符号
-    imull operand      * 有符号扩展宽度乘法
-    imull %ebx, %eax   * EAX <- EAX * EBX
+    mull operand       // EDX:EAX <- EAX * operand，无符号
+    imull operand      // 有符号扩展宽度乘法
+    imull %ebx, %eax   // EAX <- EAX * EBX
     ```
 
 <!--list-separator-->
@@ -569,9 +580,9 @@ cmpl %ebx, %eax
 -  除法
 
     ```asm
-    divl %ecx          * EDX:EAX无符号除以ECX
+    divl %ecx          // EDX:EAX无符号除以ECX
     cltd
-    idivl %ecx         * EDX:EAX有符号除以ECX
+    idivl %ecx         // EDX:EAX有符号除以ECX
     ```
 
     商写入EAX，余数写入EDX。无符号除法前通常把EDX清零；有符号除法前通常用 `cltd` 把EAX符号扩展到EDX:EAX。除数为0或商超出范围会触发异常。
@@ -590,10 +601,10 @@ testl %eax, %eax
 掩码应用：
 
 ```asm
-andl $0xFF, %eax          * 保留最低8位
-orl  $0x08, %eax         * 把第3位置1
-andl $0xFFFFFFF7, %eax    * 把第3位清0
-xorl $0x08, %eax         * 翻转第3位
+andl $0xFF, %eax          // 保留最低8位
+orl  $0x08, %eax          // 把第3位置1
+andl $0xFFFFFFF7, %eax    // 把第3位清0
+xorl $0x08, %eax          // 翻转第3位
 ```
 
 `test` 执行按位与并设置条件码，但不保存结果，常用于判断寄存器是否为0。
@@ -603,9 +614,9 @@ xorl $0x08, %eax         * 翻转第3位
 -  移位
 
     ```asm
-    shll $1, %eax    * 左移
-    shrl $1, %eax    * 逻辑右移，高位补0
-    sarl $1, %eax    * 算术右移，高位补符号位
+    shll $1, %eax    // 左移
+    shrl $1, %eax    // 逻辑右移，高位补0
+    sarl $1, %eax    // 算术右移，高位补符号位
     ```
 
     对非负整数，左移 `k` 位通常相当于乘 `$2^k$` ；右移与除法在负数舍入、溢出和语言规则上可能有差异。位运算宜优先使用无符号类型。
@@ -669,14 +680,14 @@ jmp target
     .Lend:
     ```
 
-    ~ ~ ~ mermaid
+    ```mermaid
     flowchart TD
-        A["比较a与b"] --&gt; B{"a&lt;b?"}
-        B -- 是 --&gt; C["x=1"]
-        B -- 否 --&gt; D["x=0"]
-        C --&gt; E["继续"]
-        D --&gt; E
-    ~ ~ ~
+        A["比较a与b"] --> B{"a<b?"}
+        B -- 是 --> C["x=1"]
+        B -- 否 --> D["x=0"]
+        C --> E["继续"]
+        D --> E
+    ```
 
     `call` 把返回地址压栈后跳到被调用过程； `ret` 从栈顶取出返回地址。条件跳转依赖之前设置的标志，比较与跳转之间不能随意插入修改标志的指令。
 
@@ -715,15 +726,15 @@ jmp target
 
     `leave` 近似等于 `movl %ebp,%esp; popl %ebp` 。
 
-    ~ ~ ~ mermaid
+    ```mermaid
     flowchart TB
-        A["高地址"] --&gt; B["后续参数"]
-        B --&gt; C["第一个参数"]
-        C --&gt; D["返回地址：4(%ebp)"]
-        D --&gt; E["旧EBP：0(%ebp)"]
-        E --&gt; F["局部变量：负偏移"]
-        F --&gt; G["低地址 / 当前ESP"]
-    ~ ~ ~
+        A["高地址"] --> B["后续参数"]
+        B --> C["第一个参数"]
+        C --> D["返回地址：4(%ebp)"]
+        D --> E["旧EBP：0(%ebp)"]
+        E --> F["局部变量：负偏移"]
+        F --> G["低地址 / 当前ESP"]
+    ```
 
 <!--list-separator-->
 
@@ -789,13 +800,13 @@ jmp target
 
     必须先判断 `p` 非空，才可读取 `p->value` 。
 
-    ~ ~ ~ mermaid
+    ```mermaid
     flowchart TD
-        A{"p非空?"} -- 否 --&gt; D["条件为假"]
-        A -- 是 --&gt; B{"p-&gt;value&gt;0?"}
-        B -- 否 --&gt; D
-        B -- 是 --&gt; C["条件为真"]
-    ~ ~ ~
+        A{"p非空?"} -- 否 --> D["条件为假"]
+        A -- 是 --> B{"p->value>0?"}
+        B -- 否 --> D
+        B -- 是 --> C["条件为真"]
+    ```
 
 <!--list-separator-->
 
@@ -803,13 +814,13 @@ jmp target
 
     分支少或case稀疏时，可生成连续比较；case密集时，可使用跳转表：
 
-    ~ ~ ~ mermaid
+    ```mermaid
     flowchart TD
-        A["index=x-min"] --&gt; B{"index越界?"}
-        B -- 是 --&gt; C["default"]
-        B -- 否 --&gt; D["读取jump_table[index]"]
-        D --&gt; E["间接跳转到case"]
-    ~ ~ ~
+        A["index=x-min"] --> B{"index越界?"}
+        B -- 是 --> C["default"]
+        B -- 否 --> D["读取jump_table[index]"]
+        D --> E["间接跳转到case"]
+    ```
 
     简单、无副作用的条件表达式还可能使用 `cmov` 条件传送，减少不可预测分支，但两个候选值通常都需要可安全计算。
 
@@ -818,14 +829,14 @@ jmp target
 
 `while` 、 `do-while` 和 `for` 最终都由比较、条件跳转和回跳构成。
 
-~ ~ ~ mermaid
+```mermaid
 flowchart TD
-    A["初始化"] --&gt; B{"循环条件?"}
-    B -- 否 --&gt; E["退出"]
-    B -- 是 --&gt; C["循环体"]
-    C --&gt; D["更新变量"]
-    D --&gt; B
-~ ~ ~
+    A["初始化"] --> B{"循环条件?"}
+    B -- 否 --> E["退出"]
+    B -- 是 --> C["循环体"]
+    C --> D["更新变量"]
+    D --> B
+```
 
 <!--list-separator-->
 
@@ -842,8 +853,8 @@ flowchart TD
     抽象汇编：
 
     ```asm
-    xorl %eax, %eax              * sum=0
-    xorl %ecx, %ecx              * i=0
+    xorl %eax, %eax              // sum=0
+    xorl %ecx, %ecx              // i=0
     .Lloop:
         cmpl n, %ecx
         jge .Ldone
@@ -871,15 +882,15 @@ flowchart TD
 
 一维数组元素地址：
 
-~ ~ ~ text
-&amp;A[i] = base(A) + i \* sizeof(A[0])
-~ ~ ~
+```text
+&A[i] = base(A) + i * sizeof(A[0])
+```
 
 例如 `int a[10]` 首地址为 `0x1000` ，则：
 
-~ ~ ~ text
-&amp;a[3] = 0x1000 + 3\*4 = 0x100C
-~ ~ ~
+```text
+&a[3] = 0x1000 + 3*4 = 0x100C
+```
 
 ```asm
 movl (%eax,%ecx,4), %edx
@@ -893,17 +904,17 @@ movl (%eax,%ecx,4), %edx
 
     C语言按行优先存放 `int a[R][C]` ：
 
-    ~ ~ ~ text
-    &amp;a[i][j] = base(a) + (i\*C+j)\*sizeof(int)
-    ~ ~ ~
+    ```text
+    &a[i][j] = base(a) + (i*C+j)*sizeof(int)
+    ```
 
-    ~ ~ ~ mermaid
+    ```mermaid
     flowchart LR
-        A["a[0][0]"] --&gt; B["a[0][1]"]
-        B --&gt; C["..."]
-        C --&gt; D["a[0][C-1]"]
-        D --&gt; E["a[1][0]"]
-    ~ ~ ~
+        A["a[0][0]"] --> B["a[0][1]"]
+        B --> C["..."]
+        C --> D["a[0][C-1]"]
+        D --> E["a[1][0]"]
+    ```
 
     `a[i]` 等价于 `*(a+i)` ，指针加法会自动按元素宽度缩放。普通C数组访问没有自动边界检查；越界会产生未定义行为，并可能破坏其他数据。
 
@@ -922,22 +933,22 @@ struct S {
 
 典型4字节对齐布局：
 
-~ ~ ~ text
+```text
 偏移0：c，1字节
 偏移1～3：填充
 偏移4～7：i
 偏移8～9：s
 偏移10～11：尾部填充
 总大小：12字节
-~ ~ ~
+```
 
-~ ~ ~ mermaid
+```mermaid
 flowchart LR
-    A["c 1B"] --&gt; B["填充 3B"]
-    B --&gt; C["i 4B"]
-    C --&gt; D["s 2B"]
-    D --&gt; E["尾部填充 2B"]
-~ ~ ~
+    A["c 1B"] --> B["填充 3B"]
+    B --> C["i 4B"]
+    C --> D["s 2B"]
+    D --> E["尾部填充 2B"]
+```
 
 若结构体首地址在EAX， `i` 的偏移为4：
 
@@ -962,12 +973,12 @@ union U {
 
 所有成员共享同一段存储空间。联合体大小至少容纳最大成员，并满足最严格成员的对齐要求。
 
-~ ~ ~ mermaid
+```mermaid
 flowchart TB
-    A["同一段存储空间"] --&gt; B["按int解释"]
-    A --&gt; C["按double解释"]
-    A --&gt; D["按char[8]解释"]
-~ ~ ~
+    A["同一段存储空间"] --> B["按int解释"]
+    A --> C["按double解释"]
+    A --> D["按char[8]解释"]
+```
 
 若写入 `u.i=0x12345678` ，在小端机器观察字节可能得到 `78 56 34 12` 。但跨平台程序不能轻率依赖字节序、类型大小、浮点格式或未初始化剩余字节。
 
@@ -987,9 +998,9 @@ struct Value {
 
 若对象要求 `a` 字节对齐，则其地址满足：
 
-~ ~ ~ text
+```text
 address mod a = 0
-~ ~ ~
+```
 
 典型自然对齐：
 
@@ -1008,9 +1019,9 @@ address mod a = 0
 
 把地址 `x` 向上调整到2的幂 `a` 的倍数：
 
-~ ~ ~ text
-aligned = (x+a-1) &amp; ~(a-1)
-~ ~ ~
+```text
+aligned = (x+a-1) & ~(a-1)
+```
 
 例如13按8字节向上对齐得到16。
 
@@ -1032,18 +1043,20 @@ x86-64在兼容x86的基础上扩展了寄存器和地址能力。
 -   支持RIP相对寻址，便于生成位置无关代码。
 -   现代ABI主要使用SSE/AVX寄存器处理浮点参数和运算。
 
-~ ~ ~ mermaid
+<!--listend-->
+
+```mermaid
 flowchart TB
-    A["RAX 64位"] --&gt; B["EAX 低32位"]
-    B --&gt; C["AX 低16位"]
-    C --&gt; D["AH 第8～15位"]
-    C --&gt; E["AL 低8位"]
-~ ~ ~
+    A["RAX 64位"] --> B["EAX 低32位"]
+    B --> C["AX 低16位"]
+    C --> D["AH 第8～15位"]
+    C --> E["AL 低8位"]
+```
 
 在x86-64模式下，写32位寄存器会自动清零对应64位寄存器的高32位：
 
 ```asm
-movl $1, %eax     * RAX变为0x0000000000000001
+movl $1, %eax     // RAX变为0x0000000000000001
 ```
 
 写8位或16位子寄存器通常不会自动清除其余高位。
@@ -1055,9 +1068,9 @@ movl $1, %eax     * RAX变为0x0000000000000001
 
 以下采用教材所述类Unix System V AMD64约定。前6个整数或指针参数通常依次放入：
 
-~ ~ ~ text
+```text
 RDI, RSI, RDX, RCX, R8, R9
-~ ~ ~
+```
 
 更多参数放在栈中，整数返回值通常放在RAX，浮点参数和返回值通常使用XMM寄存器。
 
@@ -1086,15 +1099,15 @@ RDI, RSI, RDX, RCX, R8, R9
 
     调用边界还要遵守16字节栈对齐要求。
 
-    ~ ~ ~ mermaid
+    ```mermaid
     flowchart TD
-        A["调用者准备寄存器参数"] --&gt; B["调整栈并保持对齐"]
-        B --&gt; C["call压入返回地址"]
-        C --&gt; D["被调用者保存必要寄存器"]
-        D --&gt; E["执行函数体"]
-        E --&gt; F["恢复寄存器和RSP"]
-        F --&gt; G["ret返回"]
-    ~ ~ ~
+        A["调用者准备寄存器参数"] --> B["调整栈并保持对齐"]
+        B --> C["call压入返回地址"]
+        C --> D["被调用者保存必要寄存器"]
+        D --> E["执行函数体"]
+        E --> F["恢复寄存器和RSP"]
+        F --> G["ret返回"]
+    ```
 
     Windows x64调用约定与System V不同，不能把上述参数寄存器规则直接套用到Windows目标程序。
 
@@ -1112,9 +1125,9 @@ subq $8, %rsp
 不同宽度转换：
 
 ```asm
-movl   %edi, %eax      * 写EAX并清RAX高32位
-movslq %edi, %rax      * 32位有符号扩展到64位
-movzbq %dil, %rax      * 8位零扩展到64位
+movl   %edi, %eax      // 写EAX并清RAX高32位
+movslq %edi, %rax      // 32位有符号扩展到64位
+movzbq %dil, %rax      // 8位零扩展到64位
 ```
 
 地址计算：
@@ -1233,5 +1246,3 @@ gcc -m32 -O2 -S test.c -o test_O2.s
 -   循环和条件分别对应哪些跳转。
 -   `sum` 和 `i` 位于栈还是寄存器。
 -   优化后是否省略栈帧、合并分支或改变循环结构。
-
-p

@@ -3,7 +3,7 @@ title: "Data Performance and Caluate"
 author: ["Hongbin Qu"]
 date: 2026-09-08T00:00:00+08:00
 tags: ["computer organization and architecture"]
-categories: ["cs", "org-arch"]
+categories: ["cs-architecture"]
 draft: false
 logs: "数据的表示和计算"
 logs_descripe: "没时间了，快快学习"
@@ -762,8 +762,7 @@ n 位补码范围：\\(-2^{n-1}\sim2^{n-1}-1\\)
 +\underbrace{0x56}\_{byte1}\\!\times2^{8}
 +\underbrace{0x78}\_{byte0}\\!\times2^{0}\\)
 
-[算术移位运算
-](#move-bits)
+[算术移位运算](#move-bits)
 
 <!--list-separator-->
 
@@ -1615,7 +1614,6 @@ IEEE 754 常见舍入模式：
 
 | 运算      | 典型结果 |
 |---------|------|
-| --------- | -------- |
 | 有限非零数 ÷ 0 | 带符号无穷大 |
 | 0 ÷ 0     | NaN      |
 | ∞ ÷ ∞     | NaN      |
