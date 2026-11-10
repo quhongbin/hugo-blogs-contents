@@ -242,15 +242,16 @@ jobs:
           # cname: www.example.com
 
 # ============================================================
-# 附录：如何创建 GH_PAT（只需做一次）
+# 附录：如何创建 GH_PAT和GH_RW_BLOG（只需做一次）
 # ============================================================
 # 方式一（推荐）：Fine-grained token，权限更精确
 #   1. GitHub 右上角头像 -> Settings -> Developer settings
 #      -> Personal access tokens -> Fine-grained tokens -> Generate new token
 #   2. Resource owner 选 quhongbin，Repository access 选 "Only select repositories"，
-#      勾选以下三个仓库：
+#      勾选以下2个仓库生产GH_PAT：
 #        - hugo-blogs-contents  （权限：Contents = Read-only，用于读取代码）
 #        - hugo-theme           （权限：Contents = Read-only，用于检出主题；私有主题才需要，公开仓库也需要 token 才能跨仓库 checkout）
+#      勾选以下1个仓库生产GH_RW_BLOG：
 #        - quhongbin.github.io  （权限：Contents = Read and write，用于推送构建产物）
 #   3. 生成后复制，到 hugo-blogs-contents 仓库
 #      Settings -> Secrets and variables -> Actions -> New repository secret，
