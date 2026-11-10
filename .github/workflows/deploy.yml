@@ -214,6 +214,8 @@ jobs:
       - name: 发布到 quhongbin.github.io
         uses: peaceiris/actions-gh-pages@v4
         with:
+          # 阻止内置GITHUB_TOKEN被持久化
+          persist-credentials: false
           # 跨仓库推送必须用 PAT（内置 GITHUB_TOKEN 只作用于本仓库）。
           personal_token: ${{ secrets.GH_RW_BLOG }}
           # 目标仓库，格式「用户名/仓库名」。GitHub Pages 用户站的固定命名规则是
