@@ -66,11 +66,11 @@ Memory Alignment means:
 #### Process API {#process-api}
 
 -   Every OS must be included these ideas above
-    **Create**: The OS is invoked to create a new process to run program you have indicated
-    **Destroy**: A interface to halt runaway process is quite useful
-    **Wait**: To wait for a process to stop running
-    **Miscellaneous Control**: there are sometimes other controls that are possible. For example, some kind of method to suspend a process
-    **Status**: Interfaces to get some status information about a Process
+-   **Create** : The OS is invoked to create a new process to run program you have indicated
+-   **Destroy** : An interface to halt runaway process is quite useful
+-   **Wait** : To wait for a process to stop running
+-   **Miscellaneous Control** : there are sometimes other controls that are possible. For example, some kind of method to suspend a process
+-   **Status** : Interfaces to get some status information about a Process
 
 UNIX present two interfaces to create new process, both are fork() and exec()
 
@@ -123,7 +123,7 @@ Once the code and data are loaded into memory, there are a few other things the 
 
 In early OSes, they load process is done eagerly. Now modern OSes perform the process lazily i.e., by loading pieces of code or data only as they needed during program
 
-To truly understand how lazy loading of pieces of code and data, we have to understand more about the **pagin** and \*swapping\*(virtualization of memory)
+To truly understand how lazy loading of pieces of code and data, we have to understand more about the **pagin** and **swapping** (virtualization of memory)
 
 Summary,before running anything, the OS clearly must do some work to get the important program bits from disk into memory
 
@@ -183,7 +183,7 @@ But we need a method to let the kernel jump into specify address(e.g. the proces
 if only one of the situations above is triggerd, the trap handler program will handle it
 
 ![](/ox-hugo/clipboard-20260615T173537.png)
-_**timeline for trap table set up**_
+_timeline for trap table set up_
 
 1.  Switcing Between Context
     The OS need to decide which process to start and stop another when it suffer from trap. If process runs exclusively, the OS can't switch to run other processes.
@@ -211,7 +211,7 @@ d. All jobs only use the CPU (i.e., they perform no I/O)
 
 > assume all jobs arrived at same time, hence \\(T\_{arrival} = 0 \\)
 
-ppthere are two metrics for sheduling, one of turnaround time is **performance**, the other one is **fairness**
+ppthere are two metrics for sheduling, one of turnaround time is **performance** , the other one is **fairness**
 
 1.  First In, First Out(or First Come, First Served)
     Just like the Queue of datastruct, consequently the job arrived first and running on CPU first
@@ -241,7 +241,7 @@ Just like, assuming Job A runs for the full 100 seconds before B and C
 
 ### The Multiple-Level Feedback Queue {#the-multiple-level-feedback-queue}
 
-[^1]: ****convey effect****: the process of CPU-bound or heavyweight
+[^1]: **convey effect** : the process of CPU-bound or heavyweight
     resource to consume runs exclusively on CPU. otherwise, there are a
     pile of processes need light resource to consume behind the heavy
     process
@@ -263,7 +263,7 @@ Just like, assuming Job A runs for the full 100 seconds before B and C
 &gt; In the old days of batch computing, a number of non-preemptive
 &gt; schedulers were developed. Virtually all modern scheders are
 &gt; preemptive, stop one process from running in order to run another;
-&gt; in particular, the scheduler can perform ****context switch****,
+&gt; in particular, the scheduler can perform **context switch** ,
 &gt; stopping temporarily process is running and resuming(or starting)
 &gt; another
 
@@ -276,7 +276,7 @@ Just like, assuming Job A runs for the full 100 seconds before B and C
 -   transparency
     -   it means opposite: that he illusion was provided by OS
 -   efficiency
-    -   OS make the virtulization as ****efficiency**** as possible, both time and space(just each of processes can't run much more time or slowly; can't cost more memory)
+    -   OS make the virtulization as **efficiency** as possible, both time and space(just each of processes can't run much more time or slowly; can't cost more memory)
 -   protection
     -   isolate processes, make sure that each of processes has private address spaces
 
@@ -289,9 +289,9 @@ OS with hardware's help turns the ugly physical mechanism into something that is
 
 - <span class="org-todo todo DOING">DOING</span>  Base and Bounds
 
-    -   it need two registers within CPU; one is called ****Base****, the other is called ****Bound****. base-and-bound pair allow we to place anywhere in physical address
+    -   it need two registers within CPU; one is called **Base** , the other is called **Bound** . base-and-bound pair allow we to place anywhere in physical address
 
-    > the technique is also referred to as ****dynamic relocation****. because base-and-bound pair translate address occur in runtime, so we can move address spaces after the process has started running
+    > the technique is also referred to as **dynamic relocation** . because base-and-bound pair translate address occur in runtime, so we can move address spaces after the process has started running
 
     physical address = virtual address + base; if physical address less than bounds, the address is legal. And CPU will raise exception, if physical address out of bounds
 
@@ -412,13 +412,13 @@ Assume there is only 30 Byte have been allocated in heap, and the address of mid
 
 In this case, the request need the memory which more than 10 bytes, it's will fail to allocate and return NULL; there isn't singal contiguous chunk of memory of that size availabel
 
-Assume it request for single byte of memory. In this case, the allocater will perform an action known as **splitting**: it will find free chunk of memory that satisfy the request and split it into two.
+Assume it request for single byte of memory. In this case, the allocater will perform an action known as **splitting** : it will find free chunk of memory that satisfy the request and split it into two.
 ![](/ox-hugo/splitting.png)
 
 then the left chunk has been allocated to the request, the right chunk minus single byte
 
 > **Free List** structure contains references to all of free chunks of space in the managed region of memory; It will be created when resources was initialized (like disks initialization, allocated heap). In user-level allocated heap, it manage the free chunk of space references to visual address
-> _**the structure manage various objects in different scenes**_, this knowledge can be introduced by LLM
+> _the structure manage various objects in different scenes_ , this knowledge can be introduced by LLM
 
 A corollary mechanism in most allocator is known as **coalescing** of free space
 
@@ -462,7 +462,7 @@ when managed region memory space have contiguous address, The machenism is trigg
 
     Assume we get 4K heap via malloc(), and virtual addres is 16384
 
-    {{< figure src="/ox-hugo/Embedding_Free_List.png" >}}
+    {{< figure src="/ox-hugo/Embedding_Free_List.svg" >}}
 
     When the three chunks are freed, there are a few of fragments in heap. So we need merge the chunks by coalescing
 
@@ -475,7 +475,7 @@ when managed region memory space have contiguous address, The machenism is trigg
 -   Next Fit
 -   segregated Lists
 
-[^fn:1]: **convey effect**:  the process of CPU-bound or heavyweight resource to consume runs exclusively on CPU. otherwise, there are a pile of processes need light resource to consume behind the heavy process
+[^fn:1]: **convey effect** :  the process of CPU-bound or heavyweight resource to consume runs exclusively on CPU. otherwise, there are a pile of processes need light resource to consume behind the heavy process
 
     1.  Shortest Job First
         It turn out a approach solve this problem, then the Queue will be
@@ -490,7 +490,7 @@ when managed region memory space have contiguous address, The machenism is trigg
 
     \\[\frac{10+20+120}{3} = 50 \\]
 
-    > In the old days of batch computing, a number of non-preemptive schedulers were developed. Virtually all modern scheders are preemptive, stop one process from running in order to run another; in particular, the scheduler can perform **context switch**, stopping temporarily process is running and resuming(or starting) another
+    > In the old days of batch computing, a number of non-preemptive schedulers were developed. Virtually all modern scheders are preemptive, stop one process from running in order to run another; in particular, the scheduler can perform **context switch** , stopping temporarily process is running and resuming(or starting) another
 
     before, we assumed the \\(T\_{arrival}\\) equal 0. Now illustrating the other example. This time, Assume A arrives at \\(t = 0 \\) and needs to run for 100 seconds, whereas B and C arrive at \\(t = 10\\) and each need to run for 10 seconds. With pure SJF, it seen in
 
@@ -508,7 +508,7 @@ when managed region memory space have contiguous address, The machenism is trigg
         \\[\frac{100+100+110}{3} = 103.33 \\]
 
     -   Shortest Time-to-Completion First
-        To address this concern, it can **preemt** job A with aforementioned acknowledge about **context switching** and **timer interrupts**. Just add preemption to SJF as the **Shortest Time-to-Completion First** or **Preemptive Shortest Job First** scheduler. With STCS in previous conditions, it seems in
+        To address this concern, it can **preemt** job A with aforementioned acknowledge about **context switching** and **timer interrupts** . Just add preemption to SJF as the **Shortest Time-to-Completion First** or **Preemptive Shortest Job First** scheduler. With STCS in previous conditions, it seems in
 
     {{< figure src="/ox-hugo/2026-06-17_15-18-38_screenshot.png" >}}
 
@@ -537,7 +537,7 @@ when managed region memory space have contiguous address, The machenism is trigg
     that is sensitive to response time? <span class="org-target" id="org-target--response-time"></span>
 
     1.  Round Robin Scheduling
-        To solve [this problem](#org-target--response-time), a new scheduling algorithm will be learned, classically referred to as Round Robin algorithm. The basic idea is simple: runs job for a  **Time Slice** (sometimes called a **scheduling quantum**) and then switches to the next job in the run queue. It reapeatlly does so until the jobs are finished. For this reason, RR called also **time-slicing**.
+        To solve [this problem](#org-target--response-time), a new scheduling algorithm will be learned, classically referred to as Round Robin algorithm. The basic idea is simple: runs job for a  **Time Slice** (sometimes called a **scheduling quantum** ) and then switches to the next job in the run queue. It reapeatlly does so until the jobs are finished. For this reason, RR called also **time-slicing** .
 
     {{< figure src="/ox-hugo/2026-06-22_17-15-52_screenshot.png" >}}
 
@@ -547,7 +547,7 @@ when managed region memory space have contiguous address, The machenism is trigg
 
     > context switching does not arise solely from the OS actions of restoring and saving a few registers. Swithing to another job causes the state which are stored branch predictors, TLBs, in CPU caches is flushed
 
-    More generally, any policy(such as RR ) that is **fair**. This is an inherent trade-off: if you are willing to be unfair, you can run shorter jobs to completion, but at the time of response time; if you want turnaround time is faster or better than it, the response time will be lowered. This type of **trade-off** is common in systems
+    More generally, any policy(such as RR ) that is **fair** . This is an inherent trade-off: if you are willing to be unfair, you can run shorter jobs to completion, but at the time of response time; if you want turnaround time is faster or better than it, the response time will be lowered. This type of **trade-off** is common in systems
 
     1.  Incorporating I/O
         If the jobs have operation of I/O, it will run exclusively on CPU without scheduling algorithm; just imagine two jobs A and B, both spend 10ms every time slice. But A is broken into 10ms excess sub-jobs (such as operation of I/O,responsive network)
