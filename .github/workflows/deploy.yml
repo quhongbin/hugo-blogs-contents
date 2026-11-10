@@ -215,7 +215,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           # 跨仓库推送必须用 PAT（内置 GITHUB_TOKEN 只作用于本仓库）。
-          personal_token: ${{ secrets.GH_PAT }}
+          personal_token: ${{ secrets.GH_RW_BLOG }}
           # 目标仓库，格式「用户名/仓库名」。GitHub Pages 用户站的固定命名规则是
           # <用户名>.github.io，访问地址就是 https://quhongbin.github.io/。
           external_repository: quhongbin/quhongbin.github.io
